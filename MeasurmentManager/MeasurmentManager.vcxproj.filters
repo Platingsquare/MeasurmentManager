@@ -26,5 +26,16 @@
     </ClCompile>
     <ClCompile Include="Sensor.cpp" />
     <ClCompile Include="searchValue.cpp" />
+    <ClCompile Include="timeStamp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

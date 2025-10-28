@@ -11,6 +11,13 @@
 #include <cmath>
 #include <iomanip>
 #include <cctype>
+#include "FileStorage.h"
+
+
+class MyClass {       // The class
+    public:             // Access specifier
+        int myNum;        // Attribute (int variable)
+};
 
 
 struct Stats
@@ -143,7 +150,7 @@ void addMeasurements(std::vector<double>& data)
 
 // Search for a value within an epsilon tolerance. Default epsilon used if user presses Enter.
 void searchValue(const std::vector<double>& data)
-{
+ {
     if (data.empty())
     {
         std::cout << "No measurements available to search.\n";
@@ -238,7 +245,8 @@ int main()
 
 {
     std::cout << "Welcome to the Measurement Manager!\n";
-    std::vector<double> measurements;
+    FileStorage storage("measurements.csv");
+    std::vector<double> measurements = storage.load(); // load any previously saved values
 
     while (true)
     {
@@ -265,6 +273,7 @@ int main()
         {
         case 1:
             addMeasurements(measurements);
+            storage.saveAll(measurements); // overwrites file with current list
             break;
         case 2:
             showStatistics(measurements);
