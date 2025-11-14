@@ -200,7 +200,7 @@ void searchValue(const std::vector<double>& data)
         std::cout << "No matches within epsilon = " << eps << ".\n";
 }
 
-// Sort the stored measurements ascending or descending.
+// Sorts the stored measurements ascending or descending.
 void sortMeasurements(std::vector<double>& data)
 {
     if (data.empty())
@@ -247,7 +247,12 @@ int main()
 {
     std::cout << "Welcome to the Measurement Manager!\n";
     FileStorage storage("measurements.csv");
-    std::vector<double> measurements = storage.load(); // load any previously saved values
+    std::vector<double> measurements = storage.load(); // loads any previously saved values from csv file 
+
+    std::time_t now = utils::now();
+    std::string ts = utils::timestamp_to_string(now);
+    std::cout << "Current UTC timestamp: " << ts << std::endl;
+
 
     while (true)
     {
@@ -256,7 +261,6 @@ int main()
         std::string choiceLine;
         if (!std::getline(std::cin, choiceLine)) break; // EOF
 
-        // Allow whitespace; try parse first integer
         int choice = 0;
         try
         {
