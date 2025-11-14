@@ -1,4 +1,12 @@
-/*void addMeasurements(std::vector<double>& data)
+/*
+#include <iostream>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
+
+// Add measurements. Accepts multiple numbers per line separated by spaces or commas.
+// Type "done" (case-insensitive) on its own line to finish adding.
+void addMeasurements(std::vector<double>& data)
 {
     std::cout << "Enter measurement values separated by spaces or commas.\n";
     std::cout << "Type \"done\" when finished.\n";
@@ -7,7 +15,7 @@
     {
         std::cout << "> ";
         std::string line;
-        if (!std::getline(std::cin, line))
+        if (!std::getline(std::cin, line)) // EOF or error -> return
             return;
 
         // Trim leading/trailing whitespace
@@ -18,7 +26,7 @@
 
         // Check for done (case-insensitive)
         std::string lower = trimmed;
-        std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) { return std::tolower(c); });
+        std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c){ return std::tolower(c); });
         if (lower == "done") break;
 
         // Replace commas with spaces so tokenization is uniform
@@ -47,6 +55,4 @@
 
     std::cout << "Finished adding. Total measurements: " << data.size() << "\n";
 }
-
-
 */

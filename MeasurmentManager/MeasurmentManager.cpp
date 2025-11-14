@@ -1,5 +1,4 @@
 // MeasurmentManager.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 
 #include <iostream>
 #include <vector>
@@ -12,6 +11,10 @@
 #include <iomanip>
 #include <cctype>
 #include "FileStorage.h"
+
+std::time_t t = utils::now();
+std::string ts = utils::timestamp_to_string(t);
+// Use ts wherever needed
 
 
 class MyClass {       // The class
