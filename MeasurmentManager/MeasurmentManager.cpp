@@ -13,18 +13,13 @@
 #include "FileStorage.h"
 
 std::time_t t = utils::now();
-std::string ts = utils::timestamp_to_string(t);
-// Use ts wherever needed
+std::string ts = utils::timestamp_to_string(t); // timestamp as string to be put wherever needed
 
 
-class MyClass {       // The class
-    public:             // Access specifier
-        int myNum;        // Attribute (int variable)
-};
 
-
-struct Stats
+class Stats
 {
+public:
     std::size_t count = 0;
     double sum = 0.0;
     double mean = std::numeric_limits<double>::quiet_NaN();
