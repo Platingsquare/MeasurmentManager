@@ -249,7 +249,8 @@ int main()
     FileStorage storage("measurements.csv");
     std::vector<double> measurements = storage.load(); // loads any previously saved values from csv file 
 
-    std::time_t now = utils::now();
+    std::time_t now = utils::locale(utils::now(),
+        utils::timezones::ONE_HOUR);
     std::string ts = utils::timestamp_to_string(now);
     std::cout << "Current UTC timestamp: " << ts << std::endl;
 

@@ -11,6 +11,10 @@ namespace utils {
 		auto result = std::chrono::system_clock::to_time_t(now);
 		return result;
 	}
+	
+	std::time_t locale(std::time_t now, std::time_t timezone) {
+		return now + timezone;
+	}
 
 	std::string timestamp_to_string(std::time_t timestamp) {
 		std::tm tm;
