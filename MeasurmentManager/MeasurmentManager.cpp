@@ -11,10 +11,13 @@
 #include <iomanip>
 #include <cctype>
 #include "FileStorage.h"
+#include "utilities.h"
 
-std::time_t t = utils::now();
-std::string ts = utils::timestamp_to_string(t); // timestamp as string to be put wherever needed
-
+class Timestamper
+{
+    std::time_t t = utils::now();
+    std::string ts = utils::timestamp_to_string(t); // timestamp as string to be put wherever needed
+};
 
 
 class Stats
@@ -292,4 +295,5 @@ int main()
     }
 
     return 0;
+
 }

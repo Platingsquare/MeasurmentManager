@@ -13,7 +13,8 @@ namespace utils {
 	}
 
 	std::string timestamp_to_string(std::time_t timestamp) {
-		std::tm tm = *std::gmtime(&timestamp); // Use gmtime for UTC
+		std::tm tm;
+		gmtime_s(&tm, &timestamp);  // I used gmtime for UTC time
 		std::stringstream ss;
 		ss << std::put_time(&tm, "%F %T");
 		return ss.str();
