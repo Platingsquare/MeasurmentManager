@@ -16,6 +16,7 @@
 #include "MeasurementStorage.h"
 #include "Measurement.h"
 #include "Timestamp.h"
+#include "Histogram.h"
 
 class Timestamper
 {
@@ -99,6 +100,9 @@ void showStatistics(const std::vector<double>& data)
     std::cout << "  Max:                   " << s.max << "\n";
     std::cout << "  Variance (population): " << s.variance << "\n";
     std::cout << "  Standard deviation:    " << s.stddev << "\n";
+
+    // Print an ASCII histogram for visualisation
+    printBarGraph(data);
 }
 
 void printMenu()

@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FileStorage.cpp" />
+    <ClCompile Include="Histogram.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Measurement.cpp" />
     <ClCompile Include="MeasurementStorage.cpp" />
@@ -134,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileStorage.h" />
+    <ClInclude Include="Histogram.h" />
     <ClInclude Include="Measurement.h" />
     <ClInclude Include="MeasurementStorage.h" />
     <ClInclude Include="Sensor.h" />
