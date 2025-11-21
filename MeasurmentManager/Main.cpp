@@ -12,6 +12,10 @@
 #include <cctype>
 #include "FileStorage.h"
 #include "utilities.h"
+#include "Sensor.h"
+#include "MeasurementStorage.h"
+#include "Measurement.h"
+#include "Timestamp.h"
 
 class Timestamper
 {
@@ -97,61 +101,51 @@ void showStatistics(const std::vector<double>& data)
     std::cout << "  Standard deviation:    " << s.stddev << "\n";
 }
 
-// Add measurements. Accepts multiple numbers per line separated by spaces or commas.
-// Type "done" (case-insensitive) on its own line to finish adding.
-void addMeasurements(std::vector<double>& data)
+void printMenu()
 {
-    std::cout << "Enter measurement values separated by spaces or commas.\n";
-    std::cout << "Type \"done\" when finished.\n";
+    std::cout << "\nMeasurement Manager - Menu\n";
+    std::cout << "1. Add new measurements\n";
+    std::cout << "2. Show statistics\n";
+    std::cout << "3. Search for a value\n";
+    std::cout << "4. Sort the list of measurements (ascending/descending)\n";
+    std::cout << "5. Simulate sensors (read & store)\n";
+    std::cout << "6. Exit program\n";
+    std::cout << "Choose an option (1-6): ";
+}
 
-    while (true)
-    {
-        std::cout << "> ";
-        std::string line;
-        if (!std::getline(std::cin, line))
-            return; 
+// Simulate two sensors, store their readings into MeasurementStorage and persist via FileStorage
+void simulateSensors(MeasurementStorage& storage, FileStorage& file)
+{
+    // Example default configs; in practice load from CSV via SensorConfig::loadFromCsv
+    SensorConfig cfg1{ "TempSensor 1", "°C", -10.0, 40.0, 30.0 };
+    SensorConfig cfg2{ "Humidity 1", "%", 0.0, 100.0, 80.0 };
 
-        // Trim leading/trailing whitespace
-        auto first = line.find_first_not_of(" \t\r\n");
-        if (first == std::string::npos) continue;
-        auto last = line.find_last_not_of(" \t\r\n");
-        std::string trimmed = line.substr(first, last - first + 1);
+    Sensor tempSensor(cfg1);
+    Sensor humSensor(cfg2);
 
-        // Check for done (case-insensitive)
-        std::string lower = trimmed;
-        std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c){ return std::tolower(c); });
-        if (lower == "done") break;
+    double tval = tempSensor.read();
+    double hval = humSensor.read();
 
-        // Replace commas with spaces so tokenization is uniform
-        for (char& c : trimmed) if (c == ',') c = ' ';
+    Measurement m1{ currentTimestamp(), tval };
+    Measurement m2{ currentTimestamp(), hval };
 
-        std::istringstream iss(trimmed);
-        std::string token;
-        bool foundAny = false;
-        while (iss >> token)
-        {
-            double value;
-            if (tryParseDouble(token, value))
-            {
-                data.push_back(value);
-                foundAny = true;
-            }
-            else
-            {
-                std::cout << "  Warning: '" << token << "' is not a valid number and was skipped.\n";
-            }
-        }
+    storage.addMeasurement(m1);
+    storage.addMeasurement(m2);
 
-        if (!foundAny)
-            std::cout << "  No valid numbers in that line.\n";
+    // Persist appended measurements
+    std::vector<Measurement> batch{ m1, m2 };
+    if (!file.append(batch)) {
+        std::cout << "Warning: failed to append sensor readings to file.\n";
     }
 
-    std::cout << "Finished adding. Total measurements: " << data.size() << "\n";
+    std::cout << "Sensor readings stored:\n";
+    std::cout << "  " << cfg1.name << ": " << m1.value << " " << cfg1.unit << " (" << m1.timestamp << ")\n";
+    std::cout << "  " << cfg2.name << ": " << m2.value << " " << cfg2.unit << " (" << m2.timestamp << ")\n";
 }
 
 // Search for a value within an epsilon tolerance. Default epsilon used if user presses Enter.
 void searchValue(const std::vector<double>& data)
- {
+{
     if (data.empty())
     {
         std::cout << "No measurements available to search.\n";
@@ -169,7 +163,7 @@ void searchValue(const std::vector<double>& data)
         return;
     }
 
-    std::cout << "Enter tolerance (press Enter to continue): ";
+    std::cout << "Enter tolerance (press Enter for default 1e-6): ";
     if (!std::getline(std::cin, line)) return;
 
     double eps = 1e-6;
@@ -200,60 +194,15 @@ void searchValue(const std::vector<double>& data)
         std::cout << "No matches within epsilon = " << eps << ".\n";
 }
 
-// Sorts the stored measurements ascending or descending.
-void sortMeasurements(std::vector<double>& data)
-{
-    if (data.empty())
-    {
-        std::cout << "No measurements available to sort.\n";
-        return;
-    }
-
-    std::cout << "Choose sort order: (A)scending or (D)escending [A/D]: ";
-    std::string line;
-    if (!std::getline(std::cin, line)) return;
-    char c = line.empty() ? 'A' : std::toupper(static_cast<unsigned char>(line[0]));
-
-    if (c == 'D')
-    {
-        std::sort(data.begin(), data.end(), std::greater<double>());
-        std::cout << "Sorted descending.\n";
-    }
-    else
-    {
-        std::sort(data.begin(), data.end());
-        std::cout << "Sorted ascending.\n";
-    }
-
-    // Show up to first 10 values to confirm
-    std::cout << "First up to 10 values after sort:\n";
-    for (std::size_t i = 0; i < std::min<std::size_t>(10, data.size()); ++i)
-        std::cout << "  [" << i << "] = " << data[i] << "\n";
-}
-
-void printMenu()
-{
-    std::cout << "\nMeasurement Manager - Menu\n";
-    std::cout << "1. Add new measurements\n";
-    std::cout << "2. Show statistics\n";
-    std::cout << "3. Search for a value\n";
-    std::cout << "4. Sort the list of measurements (ascending/descending)\n";
-    std::cout << "5. Exit program\n";
-    std::cout << "Choose an option (1-5): ";
-}
-
 int main()
-
 {
     std::cout << "Welcome to the Measurement Manager!\n";
     FileStorage storage("measurements.csv");
-    std::vector<double> measurements = storage.load(); // loads any previously saved values from csv file 
 
-    std::time_t now = utils::locale(utils::now(),
-        utils::timezones::ONE_HOUR);
-    std::string ts = utils::timestamp_to_string(now);
-    std::cout << "Current UTC timestamp: " << ts << std::endl;
-
+    // load existing measurements into MeasurementStorage
+    MeasurementStorage mstorage;
+    auto loaded = storage.load();
+    for (const auto& m : loaded) mstorage.addMeasurement(m);
 
     while (true)
     {
@@ -271,34 +220,75 @@ int main()
         }
         catch (...)
         {
-            std::cout << "Invalid choice. Enter a number between 1 and 5.\n";
+            std::cout << "Invalid choice. Enter a number between 1 and 6.\n";
             continue;
         }
 
         switch (choice)
         {
         case 1:
-            addMeasurements(measurements);
-            storage.saveAll(measurements); // overwrites file with current list
+            // add measurements interactively
+        {
+            std::cout << "Enter a value (or 'done' to stop):\n";
+            while (true) {
+                std::cout << "> ";
+                std::string line;
+                if (!std::getline(std::cin, line)) break;
+                if (line.empty()) continue;
+                std::string lower = line;
+                std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c){ return std::tolower(c); });
+                if (lower == "done") break;
+                double v;
+                if (!tryParseDouble(line, v)) {
+                    std::cout << "Invalid number.\n";
+                    continue;
+                }
+                Measurement m{ currentTimestamp(), v };
+                mstorage.addMeasurement(m);
+                // persist single measurement
+                if (!storage.append(std::vector<Measurement>{m}))
+                    std::cout << "Warning: failed to save measurement.\n";
+                std::cout << "Added: " << m.value << " at " << m.timestamp << "\n";
+            }
             break;
+        }
         case 2:
-            showStatistics(measurements);
+            // show statistics computed over values in mstorage
+        {
+            std::vector<double> vals;
+            for (const auto& mm : mstorage.getAll()) vals.push_back(mm.value);
+            showStatistics(vals);
             break;
+        }
         case 3:
-            searchValue(measurements);
+        {
+            std::vector<double> vals;
+            for (const auto& mm : mstorage.getAll()) vals.push_back(mm.value);
+            searchValue(vals);
             break;
+        }
         case 4:
-            sortMeasurements(measurements);
+        {
+            // sort storage by value and print first 10
+            auto all = mstorage.getAll();
+            std::vector<Measurement> mod = all; // make a modifiable copy
+            std::sort(mod.begin(), mod.end(), [](const Measurement&a,const Measurement&b){ return a.value < b.value; });
+            std::cout << "First up to 10 values after sort:\n";
+            for (size_t i=0;i<std::min<size_t>(10, mod.size());++i)
+                std::cout << "  ["<<i<<"] = "<<mod[i].value<<" ("<<mod[i].timestamp<<")\n";
             break;
+        }
         case 5:
+            simulateSensors(mstorage, storage);
+            break;
+        case 6:
             std::cout << "Exiting program.\n";
             return 0;
         default:
-            std::cout << "Invalid choice. Enter a number between 1 and 5.\n";
+            std::cout << "Invalid choice. Enter a number between 1 and 6.\n";
             break;
         }
     }
 
     return 0;
-
 }

@@ -125,12 +125,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FileStorage.cpp" />
-    <ClCompile Include="MeasurmentManager.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Measurement.cpp" />
+    <ClCompile Include="MeasurementStorage.cpp" />
+    <ClCompile Include="Sensor.cpp" />
     <ClCompile Include="timeStamp.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileStorage.h" />
+    <ClInclude Include="Measurement.h" />
+    <ClInclude Include="MeasurementStorage.h" />
+    <ClInclude Include="Sensor.h" />
+    <ClInclude Include="Timestamp.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
