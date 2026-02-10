@@ -4,8 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <random>
-
-// Helper trim functions
+// Helper trim function
 static inline std::string trim(const std::string& s) {
     auto first = s.find_first_not_of(" \t\r\n");
     if (first == std::string::npos) return std::string();
@@ -61,20 +60,4 @@ std::vector<SensorConfig> SensorConfig::loadFromCsv(const std::string& filename)
     }
 
     return out;
-}
-
-Sensor::Sensor(const SensorConfig& cfg)
-    : cfg_(cfg)
-{
-    std::random_device rd;
-    rng_.seed(rd());
-    double a = cfg_.minValue;
-    double b = cfg_.maxValue;
-    if (a > b) std::swap(a, b);
-    dist_ = std::uniform_real_distribution<double>(a, b);
-}
-
-double Sensor::read()
-{
-    return dist_(rng_);
 }
