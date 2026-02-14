@@ -1,36 +1,37 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
-#include <random>
 #include <vector>
 
 // Configuration for a sensor
 struct SensorConfig {
-    std::string name;    // sensor name, e.g. "TempSensor 1"
-    std::string unit;    // unit, e.g. "°C"
-    double minValue = 0.0; // simulation interval min
-    double maxValue = 1.0; // simulation interval max
-    double threshold = 0.0; // threshold value
+    std::string name;
+    std::string unit;
+    double minValue = 0.0;
+    double maxValue = 1.0;
+    double threshold = 0.0;
 
-    // Load configs from simple CSV file with columns:
-    // name,unit,min,max,threshold
-    // Lines starting with '#' or a header containing "name" are skipped.
     static std::vector<SensorConfig> loadFromCsv(const std::string& filename);
 };
 
-// Sensor that produces simulated readings according to its SensorConfig.
+// Abstract base class for sensors
 class Sensor {
 public:
-    explicit Sensor(const SensorConfig& cfg);
+    explicit Sensor(const SensorConfig& cfg) : cfg_(cfg) {}
+    virtual ~Sensor() = default;
 
-    // Return sensor configuration
-    const SensorConfig& config() const noexcept { return cfg_; }
+    // Non-const pure virtual read() so implementations can mutate RNG state
+    virtual double read() = 0;
 
-    // Generate a simulated reading (random double within [minValue,maxValue])
-    double read();
+    // Accessors - return const refs to avoid unnecessary copies
+    const std::string& name() const { return cfg_.name; }
+    const std::string& unit() const { return cfg_.unit; }
+    const SensorConfig& config() const { return cfg_; }
 
-private:
+    // Prevent copying/slicing (derived sensors often hold RNG state)
+    Sensor(const Sensor&) = delete;
+    Sensor& operator=(const Sensor&) = delete;
+
+protected:
     SensorConfig cfg_;
-    std::mt19937 rng_;
-    std::uniform_real_distribution<double> dist_;
 };
